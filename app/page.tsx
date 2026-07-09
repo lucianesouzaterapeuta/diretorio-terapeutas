@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { ShieldCheck } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { Hero } from '@/components/hero'
@@ -7,12 +10,14 @@ import { SiteFooter } from '@/components/site-footer'
 import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState('')
+
   return (
     <>
       <SiteHeader />
       <main>
-        <Hero />
-        <TherapistsSection />
+        <Hero query={searchQuery} onQueryChange={setSearchQuery} />
+        <TherapistsSection searchQuery={searchQuery} />
 
         <section className="bg-secondary/50 py-16 md:py-20">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-5 px-4 text-center md:px-6">

@@ -72,3 +72,24 @@ export const therapists: Therapist[] = [
 ]
 
 export const founders = therapists.filter((t) => t.founder)
+
+function normalizeText(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+export function matchesTherapistSearch(therapist: Therapist, query: string) {
+  const normalizedQuery = normalizeText(query.trim())
+
+  if (!normalizedQuery) {
+    return true
+  }
+
+  const searchableText = normalizeText(
+    [therapist.name, therapist.specialty, therapist.bio, therapist.id].join(' '),
+  )
+
+  return searchableText.includes(normalizedQuery)
+}

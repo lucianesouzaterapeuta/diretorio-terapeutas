@@ -4,7 +4,12 @@ import Image from 'next/image'
 import { Search, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function Hero() {
+type HeroProps = {
+  query: string
+  onQueryChange: (value: string) => void
+}
+
+export function Hero({ query, onQueryChange }: HeroProps) {
   return (
     <section className="relative overflow-hidden pt-28 md:pt-32">
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 md:grid-cols-2 md:px-6 md:pb-24">
@@ -37,6 +42,8 @@ export function Hero() {
               <input
                 id="busca"
                 type="text"
+                value={query}
+                onChange={(event) => onQueryChange(event.target.value)}
                 placeholder="Nome ou especialidade (ex: EFT, TRG)"
                 className="h-12 w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
@@ -46,10 +53,6 @@ export function Hero() {
             </Button>
           </form>
 
-          <p className="text-sm text-muted-foreground">
-            Mais de <span className="font-semibold text-foreground">120 terapeutas</span>{' '}
-            prontos para acolher você.
-          </p>
         </div>
 
         <div className="relative">
@@ -62,10 +65,6 @@ export function Hero() {
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
             />
-          </div>
-          <div className="absolute -bottom-5 -left-5 hidden rounded-2xl border border-border bg-card px-5 py-4 shadow-md sm:block">
-            <p className="font-serif text-2xl font-bold text-primary">+8 anos</p>
-            <p className="text-sm text-muted-foreground">acolhendo pessoas</p>
           </div>
         </div>
       </div>

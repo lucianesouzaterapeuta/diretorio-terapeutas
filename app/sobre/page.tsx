@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import type { Metadata } from 'next'
-import { MessageCircle, AtSign, Globe } from 'lucide-react'
+import { AtSign, Globe } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { Button } from '@/components/ui/button'
@@ -34,6 +34,11 @@ export default function SobrePage() {
         <section className="mx-auto flex max-w-5xl flex-col gap-12 px-4 pb-20 md:px-6">
           {founders.map((founder, index) => {
             const whatsappUrl = `https://wa.me/${founder.whatsapp}`
+            
+            // Lógica para garantir que o link do Instagram funcione corretamente
+            const instagramLimpo = founder.instagram?.replace(/^@/, '')
+            const instagramUrl = instagramLimpo ? `https://www.instagram.com/${instagramLimpo}` : '#'
+
             return (
               <article
                 key={founder.id}
@@ -67,17 +72,23 @@ export default function SobrePage() {
 
                   <div className="flex flex-col gap-2 text-sm text-muted-foreground">
                     {founder.instagram && (
-                      <span className="inline-flex items-center gap-2">
+                      <a
+                        href={instagramUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex w-fit items-center gap-2 transition-colors hover:text-primary hover:underline"
+                      >
                         <AtSign className="size-4 text-primary" aria-hidden="true" />
                         {founder.instagram}
-                      </span>
+                      </a>
                     )}
+                    
                     {founder.website && (
                       <a
                         href={founder.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 font-medium text-primary hover:underline"
+                        className="inline-flex w-fit items-center gap-2 font-medium text-primary transition-colors hover:underline"
                       >
                         <Globe className="size-4" aria-hidden="true" />
                         Visitar site
@@ -88,9 +99,9 @@ export default function SobrePage() {
                   <Button
                     nativeButton={false}
                     render={<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" />}
-                    className="w-full sm:w-fit"
+                    className="w-full sm:w-fit mt-2"
                   >
-                    <MessageCircle className="size-4" aria-hidden="true" />
+                    <i className="fab fa-whatsapp text-lg mr-2" aria-hidden="true" />
                     Falar no WhatsApp
                   </Button>
                 </div>

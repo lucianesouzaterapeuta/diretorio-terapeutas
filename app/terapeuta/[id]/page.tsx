@@ -1,227 +1,189 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import {
-  ArrowRight,
-  AtSign,
-  CalendarDays,
-  Compass,
-  Globe,
-  HeartHandshake,
-  ShieldCheck,
-  Sparkles,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { therapists } from '@/lib/therapists'
+import { ArrowLeft, AtSign, Compass, Globe, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 
-const specialties = [
+const platformValues = [
   {
-    title: 'Atendimento individual',
-    description: 'Acolhimento terapêutico pensado para cada etapa da sua jornada.',
+    title: 'Sigilo e Segurança',
+    description: 'Ambiente confidencial e protegido para você compartilhar sua história com tranquilidade.',
   },
   {
-    title: 'Escuta emocional',
-    description: 'Espaço seguro para identificar bloqueios e reorganizar sua percepção.',
+    title: 'Escuta Ativa e sem Julgamentos',
+    description: 'Um espaço seguro de acolhimento total, focado exclusivamente no seu bem-estar emocional.',
   },
   {
-    title: 'Cura da criança interior',
-    description: 'Trabalho com memórias, dores antigas e processos de autorreparação.',
+    title: 'Profissionalismo Verificado',
+    description: 'Atendimento pautado na ética, qualidade técnica e empatia durante todo o processo.',
   },
   {
-    title: 'Integração e crescimento',
-    description: 'Orientação para reconectar-se com clareza, presença e bem-estar.',
+    title: 'Acolhimento Humanizado',
+    description: 'Respeito absoluto ao seu tempo, à sua dor e ao seu processo individual de cura e autoconhecimento.',
   },
 ]
 
-type Props = {
-  params: Promise<{
-    id: string
-  }>
-}
+export default function TherapistProfilePage({ params }: any) {
+  const [id, setId] = useState<string>('')
+  const [therapist, setTherapist] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-export function generateStaticParams() {
-  return therapists.map((therapist) => ({ id: therapist.id }))
-}
+  // Esta função força a tela a rolar para o topo imediatamente
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
-export default async function TherapistProfilePage({ params }: Props) {
-  const { id } = await params
-  const therapist = therapists.find((item) => item.id === id)
+  useEffect(() => {
+    Promise.resolve(params).then((p) => {
+      if (p?.id) setId(p.id)
+    })
+  }, [params])
 
-  if (!therapist) {
+  useEffect(() => {
+    if (id) carregarPerfil()
+  }, [id])
+
+  const carregarPerfil = async () => {
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single()
+
+    if (error || !data) {
+      setLoading(false)
+      return
+    }
+    setTherapist(data)
+    setLoading(false)
+  }
+
+  if (loading) {
     return (
-      <main className="mx-auto flex min-h-[60vh] max-w-4xl flex-col items-center justify-center px-4 py-20 text-center">
-        <h1 className="text-3xl font-bold text-foreground">Terapeuta não encontrado</h1>
-        <p className="mt-4 text-muted-foreground">
-          O perfil que você tentou acessar não existe ou foi removido.
-        </p>
-        <Button nativeButton={false} render={<Link href="/" />} className="mt-6">
-          Voltar para o início
-        </Button>
-      </main>
+      <>
+        <SiteHeader />
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+          <p className="text-lg font-medium text-[#006d5b] animate-pulse">Carregando perfil do especialista...</p>
+        </div>
+      </>
     )
   }
 
-  const whatsappUrl = `https://wa.me/${therapist.whatsapp}?text=${encodeURIComponent(
-    `Olá ${therapist.name}, encontrei seu perfil na plataforma Conversas que Curam e gostaria de saber mais sobre seus atendimentos.`,
-  )}`
-  const instagramUrl = therapist.instagram
-    ? `https://www.instagram.com/${therapist.instagram.replace(/^@/, '')}`
-    : undefined
+  if (!therapist) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center">
+          <h1 className="text-3xl font-bold text-gray-800">Perfil não encontrado</h1>
+          <Link href="/" className="mt-6 text-[#006d5b] hover:underline font-medium flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" /> Voltar para a lista
+          </Link>
+        </main>
+      </>
+    )
+  }
+
+  const nome = therapist.nome || therapist.name || 'Especialista'
+  const telefone = therapist.telefone || therapist.whatsapp || ''
+  const foto = therapist.foto_url || therapist.foto_perfil || therapist.foto || therapist.image || '/placeholder.svg'
+  const especialidade = therapist.especialidade || therapist.specialty || 'Atendimento Terapêutico'
+  const descricao = therapist.descricao || therapist.sobre || therapist.bio || 'Profissional parceiro da plataforma.'
+  const instagram = therapist.instagram || ''
+  const site = therapist.site || therapist.website || ''
+
+  const numeroLimpo = telefone.replace(/\D/g, '')
+  const whatsappUrl = numeroLimpo ? `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(`Olá ${nome}, encontrei seu perfil na plataforma Conversas que Curam e gostaria de saber mais sobre seus atendimentos.`)}` : '#'
+  
+  const instagramLimpo = instagram.replace(/^@/, '')
+  const instagramUrl = instagramLimpo ? `https://www.instagram.com/${instagramLimpo}` : null
 
   return (
-    <main className="min-h-screen bg-stone-50/70">
-      <section className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
-        <div className="flex flex-col gap-6 rounded-[2rem] border border-stone-200 bg-white/80 p-6 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.25)] backdrop-blur sm:p-8 lg:flex-row lg:items-center lg:gap-10 lg:p-10">
-          <div className="w-full lg:w-[32rem] lg:flex-shrink-0">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-stone-200 bg-stone-100 shadow-inner">
-              <Image
-                src={therapist.image || '/placeholder.svg'}
-                alt={`Foto de ${therapist.name}, ${therapist.specialty}`}
-                fill
-                sizes="(max-width: 1024px) 100vw, 32rem"
-                className="object-cover object-top"
-              />
+    <>
+      <SiteHeader />
+      <main className="min-h-screen bg-gray-50/50 pb-20 pt-28 md:pt-32">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          
+          <div className="mb-8">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#006d5b] hover:text-[#004f42] transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Voltar para a lista
+            </Link>
+          </div>
+
+          <div className="flex flex-col gap-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-lg sm:p-10 lg:flex-row lg:items-start lg:gap-12">
+            <div className="w-full shrink-0 lg:w-80">
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-inner">
+                <Image src={foto} alt={`Foto de ${nome}`} fill sizes="(max-width: 1024px) 100vw, 320px" className="object-cover object-top" />
+              </div>
+            </div>
+
+            <div className="flex flex-1 flex-col">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-[#006d5b]">
+                <Sparkles className="h-3.5 w-3.5" /> Profissional Verificado
+              </span>
+              <h1 className="mt-4 font-serif text-3xl font-bold text-gray-900 sm:text-4xl">{nome}</h1>
+              <p className="mt-2 text-lg font-medium text-[#006d5b]">{especialidade}</p>
+              <div className="mt-6 prose prose-stone max-w-none text-gray-600 leading-relaxed">
+                <p>{descricao}</p>
+              </div>
+
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
+                {numeroLimpo && (
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#006d5b] px-6 py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#005445] sm:w-auto">
+                    <i className="fab fa-whatsapp text-xl" aria-hidden="true" />
+                    Falar no WhatsApp
+                  </a>
+                )}
+                {instagramUrl && (
+                  <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-[#006d5b] sm:w-auto">
+                    <AtSign className="h-4 w-4" /> @{instagramLimpo}
+                  </a>
+                )}
+                {site && (
+                  <a href={site} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-[#006d5b] sm:w-auto">
+                    <Globe className="h-4 w-4" /> Visitar site
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-blue-900/10 px-3 py-1 text-sm font-semibold text-blue-900">
-              <Sparkles className="size-4" aria-hidden="true" />
-              Perfil exclusivo
-            </span>
-
-            <h1 className="mt-4 font-serif text-4xl font-bold leading-tight text-blue-950 sm:text-5xl">
-              {therapist.name}
-            </h1>
-            <p className="mt-3 text-lg font-semibold text-blue-800">{therapist.specialty}</p>
-            <p className="mt-5 max-w-2xl font-sans text-base leading-8 text-stone-700 sm:text-lg">
-              {therapist.bio}
-            </p>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              {therapist.instagram && instagramUrl && (
-                <a
-                  href={instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-200"
-                >
-                  <AtSign className="size-4" aria-hidden="true" />
-                  {therapist.instagram}
-                </a>
-              )}
-              {therapist.website && (
-                <a
-                  href={therapist.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-blue-900/10 px-4 py-2 text-sm font-medium text-blue-900 transition hover:bg-blue-900/20"
-                >
-                  <Globe className="size-4" aria-hidden="true" />
-                  Visitar site
-                </a>
-              )}
-            </div>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button
-                nativeButton={false}
-                render={
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2"
-                  />
-                }
-                className="w-full justify-center rounded-full bg-blue-900 px-6 py-6 text-base font-semibold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:bg-blue-800 sm:w-auto"
-                aria-label="Agendar consulta por WhatsApp"
-              >
-                <CalendarDays className="size-5" aria-hidden="true" />
-                Agendar Consulta
-              </Button>
-              <Button
-                nativeButton={false}
-                render={<Link href="/" />}
-                className="w-full rounded-full border border-stone-300 bg-white px-6 py-6 text-base font-semibold text-stone-700 transition hover:border-blue-900 hover:text-blue-900 sm:w-auto"
-              >
-                Voltar ao diretório
-              </Button>
-            </div>
+          <div className="mt-8 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <section className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
+              <div className="flex items-center gap-3">
+                <Compass className="h-6 w-6 text-[#006d5b]" />
+                <h2 className="font-serif text-2xl font-bold text-gray-900">O que esperar do atendimento</h2>
+              </div>
+              <div className="mt-8 grid gap-6 sm:grid-cols-2">
+                {platformValues.map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-gray-50 bg-gray-50/50 p-5">
+                    <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+            <section className="rounded-3xl bg-[#006d5b] p-8 text-white shadow-md">
+              <div className="flex items-center gap-3">
+                <HeartHandshake className="h-6 w-6 text-teal-100" />
+                <h2 className="font-serif text-2xl font-bold">Nosso Compromisso</h2>
+              </div>
+              <p className="mt-6 text-base leading-relaxed text-teal-50">
+                Acreditamos que todo encontro terapêutico deve ser construído com presença e respeito, oferecendo a você um espaço acolhedor e seguro.
+              </p>
+              <ul className="mt-8 space-y-4">
+                <li className="flex gap-4 rounded-2xl bg-white/10 p-4 backdrop-blur-sm">
+                  <ShieldCheck className="h-6 w-6 shrink-0 text-teal-100" />
+                  <div>
+                    <p className="font-semibold text-white">Contato Direto e Seguro</p>
+                    <p className="mt-1 text-sm text-teal-100/90">Você fala diretamente com o profissional escolhido, sem intermediários.</p>
+                  </div>
+                </li>
+              </ul>
+            </section>
           </div>
         </div>
-
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-[1.5rem] border border-stone-200 bg-stone-50/80 p-6 sm:p-8">
-            <div className="flex items-center gap-2">
-              <Compass className="size-5 text-blue-900" aria-hidden="true" />
-              <h2 className="font-serif text-2xl font-semibold text-blue-950">
-                Áreas de Atuação
-              </h2>
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {specialties.map((item) => (
-                <div key={item.title} className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-                  <h3 className="font-semibold text-blue-950">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-stone-600">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-[1.5rem] border border-stone-200 bg-blue-900/95 p-6 text-white sm:p-8">
-            <div className="flex items-center gap-2">
-              <HeartHandshake className="size-5" aria-hidden="true" />
-              <h2 className="font-serif text-2xl font-semibold">Sobre o Atendimento</h2>
-            </div>
-
-            <p className="mt-4 font-sans text-base leading-8 text-blue-50/90">
-              Cada encontro é construído com presença, respeito e profundidade, oferecendo um espaço
-              acolhedor para cuidar de emoções, padrões antigos e necessidades atuais.
-            </p>
-
-            <ul className="mt-6 space-y-3">
-              <li className="flex gap-3 rounded-2xl bg-white/10 p-3">
-                <ShieldCheck className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="font-semibold">Escuta acolhedora</p>
-                  <p className="mt-1 text-sm text-blue-50/80">
-                    Um ambiente seguro para falar com liberdade e sensibilidade.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3 rounded-2xl bg-white/10 p-3">
-                <ShieldCheck className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="font-semibold">Abordagem sensível</p>
-                  <p className="mt-1 text-sm text-blue-50/80">
-                    Estratégias adaptadas ao seu processo e ao seu ritmo.
-                  </p>
-                </div>
-              </li>
-              <li className="flex gap-3 rounded-2xl bg-white/10 p-3">
-                <ShieldCheck className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-                <div>
-                  <p className="font-semibold">Cuidado humano</p>
-                  <p className="mt-1 text-sm text-blue-50/80">
-                    Atendimento com presença, ética e acolhimento profissional.
-                  </p>
-                </div>
-              </li>
-            </ul>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-blue-200"
-            >
-              Conversar pelo WhatsApp
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </a>
-          </section>
-        </div>
-      </section>
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   )
 }
