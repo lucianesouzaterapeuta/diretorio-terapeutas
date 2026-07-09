@@ -30,10 +30,18 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
       return
     }
 
-    const hoje = new Date()
+    // A MÁGICA ACONTECE AQUI: Oculta automaticamente quem passou do prazo
+    const hoje = new Date().getTime() // Pega o momento exato de agora
+    
     const filtrados = data.filter((t: any) => {
-      if (!t.data_expiracao) return true
-      return new Date(t.data_expiracao) > hoje
+      // Se não tem data de expiração cadastrada, deixa ativo para não quebrar cadastros antigos
+      if (!t.data_expiracao) return true 
+      
+      // Converte a data de expiração do banco para tempo exato e compara com agora
+      const dataVencimento = new Date(t.data_expiracao).getTime()
+      
+      // Só retorna 'true' (ou seja, só mostra no site) se o vencimento for MAIOR ou IGUAL a hoje
+      return dataVencimento >= hoje 
     })
 
     setTherapists(filtrados)
