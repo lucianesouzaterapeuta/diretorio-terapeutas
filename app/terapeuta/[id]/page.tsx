@@ -31,6 +31,10 @@ export default function TherapistProfilePage({ params }: any) {
   const [id, setId] = useState<string>('')
   const [therapist, setTherapist] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  
+  // Estados para controlar o modal de segurança do WhatsApp
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [agreed, setAgreed] = useState(false)
 
   // Esta função força a tela a rolar para o topo imediatamente
   useEffect(() => {
@@ -128,7 +132,20 @@ export default function TherapistProfilePage({ params }: any) {
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
                 {numeroLimpo && (
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#006d5b] px-6 py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#005445] sm:w-auto">
+                  <a 
+                    href={agreed ? whatsappUrl : "#"} 
+                    target={agreed ? "_blank" : "_self"}
+                    rel="noopener noreferrer" 
+                    onClick={(e) => {
+                      if (!agreed) {
+                        e.preventDefault();
+                        setIsModalOpen(true);
+                      } else {
+                        setIsModalOpen(false);
+                      }
+                    }}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#006d5b] px-6 py-3.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#005445] sm:w-auto cursor-pointer"
+                  >
                     <i className="fab fa-whatsapp text-xl" aria-hidden="true" />
                     Falar no WhatsApp
                   </a>
@@ -182,6 +199,62 @@ export default function TherapistProfilePage({ params }: any) {
             </section>
           </div>
         </div>
+
+        {/* Modal de Termos de Uso (Renderizado no final do main) */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative animate-in fade-in zoom-in duration-200">
+              
+              {/* Botão de fechar (X) */}
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-stone-400 hover:text-stone-700 transition-colors"
+                aria-label="Fechar"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+
+              <h3 className="text-xl font-serif font-bold mb-4 text-[#006d5b]">Aviso Importante</h3>
+              
+              <p className="text-stone-600 mb-6 text-sm leading-relaxed">
+                A <strong>Conversas que Curam</strong> atua exclusivamente como plataforma intermediadora entre clientes e terapeutas independentes. Não prestamos serviços terapêuticos e não substituímos atendimento médico ou psiquiátrico. Conheça nossos <a href="/termos" target="_blank" className="text-[#006d5b] font-semibold underline hover:text-[#004f42]">termos</a> antes de contratar.
+              </p>
+
+              <label className="flex items-start gap-3 mb-6 cursor-pointer group">
+                <input 
+                  type="checkbox" 
+                  className="mt-1 w-5 h-5 cursor-pointer accent-[#006d5b] rounded border-stone-300"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                />
+                <span className="text-sm text-stone-700 group-hover:text-stone-900 transition-colors">
+                  Estou ciente e concordo com as condições descritas acima.
+                </span>
+              </label>
+
+              <a 
+                href={agreed ? whatsappUrl : "#"} 
+                target={agreed ? "_blank" : "_self"}
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!agreed) {
+                    e.preventDefault();
+                  } else {
+                    setIsModalOpen(false);
+                  }
+                }}
+                className={`flex items-center justify-center w-full py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-300 ${
+                  agreed 
+                    ? "bg-[#006d5b] text-white hover:bg-[#005445] shadow-md hover:shadow-lg" 
+                    : "bg-stone-200 text-stone-400 cursor-not-allowed"
+                }`}
+              >
+                <i className="fab fa-whatsapp text-lg mr-2" aria-hidden="true" />
+                Continuar para o WhatsApp
+              </a>
+            </div>
+          </div>
+        )}
       </main>
       <SiteFooter />
     </>

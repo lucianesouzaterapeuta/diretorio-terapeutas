@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Image from 'next/image'
 import type { Metadata } from 'next'
 import { AtSign, Globe } from 'lucide-react'
@@ -6,13 +9,11 @@ import { SiteFooter } from '@/components/site-footer'
 import { Button } from '@/components/ui/button'
 import { founders } from '@/lib/therapists'
 
-export const metadata: Metadata = {
-  title: 'Sobre | Conversas que Curam',
-  description:
-    'Conheça as fundadoras da plataforma Conversas que Curam, suas guias nesta jornada de cura e transformação.',
-}
-
 export default function SobrePage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [agreed, setAgreed] = useState(false)
+  const [selectedUrl, setSelectedUrl] = useState('')
+
   return (
     <>
       <SiteHeader />
@@ -34,8 +35,6 @@ export default function SobrePage() {
         <section className="mx-auto flex max-w-5xl flex-col gap-12 px-4 pb-20 md:px-6">
           {founders.map((founder, index) => {
             const whatsappUrl = `https://wa.me/${founder.whatsapp}`
-            
-            // Lógica para garantir que o link do Instagram funcione corretamente
             const instagramLimpo = founder.instagram?.replace(/^@/, '')
             const instagramUrl = instagramLimpo ? `https://www.instagram.com/${instagramLimpo}` : '#'
 
@@ -97,8 +96,10 @@ export default function SobrePage() {
                   </div>
 
                   <Button
-                    nativeButton={false}
-                    render={<a href={whatsappUrl} target="_blank" rel="noopener noreferrer" />}
+                    onClick={() => {
+                      setSelectedUrl(whatsappUrl);
+                      setIsModalOpen(true);
+                    }}
                     className="w-full sm:w-fit mt-2"
                   >
                     <i className="fab fa-whatsapp text-lg mr-2" aria-hidden="true" />
@@ -109,6 +110,38 @@ export default function SobrePage() {
             )
           })}
         </section>
+
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
+              <h3 className="text-xl font-bold mb-4 text-[#006d5b]">Aviso Importante</h3>
+              <p className="text-stone-600 mb-6 text-sm leading-relaxed">
+                Ao entrar em contato, você concorda com nossos <a href="/termos" target="_blank" className="text-[#006d5b] font-semibold underline">termos de uso</a>.
+              </p>
+              <label className="flex items-start gap-3 mb-6 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="mt-1 w-5 h-5 accent-[#006d5b]"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                />
+                <span className="text-sm text-stone-700">Estou ciente e concordo.</span>
+              </label>
+              <a 
+                href={selectedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!agreed) e.preventDefault();
+                  else setIsModalOpen(false);
+                }}
+                className={`flex justify-center w-full py-3 rounded-lg font-medium ${agreed ? "bg-[#006d5b] text-white" : "bg-stone-200 text-stone-400 pointer-events-none"}`}
+              >
+                Continuar
+              </a>
+            </div>
+          </div>
+        )}
       </main>
       <SiteFooter />
     </>
