@@ -26,7 +26,7 @@ export const therapists: Therapist[] = [
     id: 'rachel',
     name: 'Rachel',
     specialty: '',
-    bio: 'Master terapeuta TRG (Terapia de Reprocessamento Generativo), terapeuta EFT e especializada em Cura da Criança Interior. Mentora de terapeutas, escritora e apresentadora do Podcast Conversas que Curam.',
+    bio: 'Master terapeuta TRG (Terapia de Reprocessamento Generativo), terapeuta EFT e especializada em Cura da Criança Interior e escritora',
     image: '/therapists/rachel.jpg',
     whatsapp: '5543988438134',
     instagram: '@rachelterapeutaemocional',
