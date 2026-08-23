@@ -21,7 +21,7 @@ export const therapists: Therapist[] = [
     instagram: '@luciane_souzaterapeutatrg',
     website: 'https://sites.google.com/view/metodo-origem',
 
-Founder:true,
+    founder: true,
   },
   {
     id: 'mariana-alves',
