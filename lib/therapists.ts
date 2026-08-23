@@ -20,6 +20,8 @@ export const therapists: Therapist[] = [
     whatsapp: '5535998185710',
     instagram: '@luciane_souzaterapeutatrg',
     website: 'https://sites.google.com/view/metodo-origem',
+
+Founder:true,
   },
   {
     id: 'mariana-alves',
