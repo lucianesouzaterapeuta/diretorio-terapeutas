@@ -20,18 +20,6 @@ export const therapists: Therapist[] = [
     whatsapp: '5535998185710',
     instagram: '@luciane_souzaterapeutatrg',
     website: 'https://sites.google.com/view/metodo-origem',
-    founder: true,
-  },
-  {
-    id: 'rachel',
-    name: 'Rachel',
-    specialty: '',
-    bio: 'Master terapeuta TRG (Terapia de Reprocessamento Generativo), terapeuta EFT e especializada em Cura da Criança Interior e escritora',
-    image: '/therapists/rachel.jpg',
-    whatsapp: '5543988438134',
-    instagram: '@rachelterapeutaemocional',
-    website: 'https://sites.google.com/view/metodo-origem',
-    founder: true,
   },
   {
     id: 'mariana-alves',
