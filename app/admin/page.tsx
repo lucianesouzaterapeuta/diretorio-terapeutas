@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [editFotoUrl, setEditFotoUrl] = useState('')
   const [uploading, setUploading] = useState(false)
   const [salvandoPerfil, setSalvandoPerfil] = useState(false)
+  const [enviandoEmailId, setEnviandoEmailId] = useState<string | null>(null)
 
   const router = useRouter()
 
@@ -47,6 +48,30 @@ export default function AdminPage() {
 
   const handleMesesChange = (id: string, valor: number) => {
     setMeses(prev => ({ ...prev, [id]: valor }))
+  }
+
+  // FUNÇÃO PARA ENVIAR O LEMBRETE MANUALMENTE POR E-MAIL COM O LINK DA HOTMART
+  const enviarLembreteManual = async (id: string, nome: string) => {
+    if (!confirm(`Deseja enviar agora o e-mail de lembrete com o link da Hotmart para ${nome}?`)) return
+    
+    try {
+      setEnviandoEmailId(id)
+      const res = await fetch('/api/enviar-lembretes-automaticos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ therapistId: id })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert(`E-mail de lembrete enviado com sucesso para ${nome}!`)
+      } else {
+        alert(`Erro ao enviar e-mail: ${data.error || 'Erro desconhecido'}`)
+      }
+    } catch (err: any) {
+      alert(`Erro de rede ao tentar enviar e-mail: ${err.message}`)
+    } finally {
+      setEnviandoEmailId(null)
+    }
   }
 
   // ABRIR O MODAL PREENCHIDO COM OS DADOS DO CLIENTE
@@ -106,7 +131,6 @@ export default function AdminPage() {
       alert(`Erro ao salvar alterações: ${error.message}`)
     } else {
       alert('Perfil do terapeuta atualizado com sucesso!')
-      // Atualiza a lista na hora sem precisar recarregar a página
       setTerapeutas(terapeutas.map(t => t.id === editingTherapist.id ? {
         ...t,
         nome: editNome,
@@ -252,6 +276,15 @@ export default function AdminPage() {
                       className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm"
                     >
                       <i className="fa-solid fa-pen-to-square" /> Editar Perfil Completo
+                    </button>
+
+                    {/* BOTÃO PARA ENVIAR O LEMBRETE MANUAL COM LINK DA HOTMART */}
+                    <button 
+                      onClick={() => enviarLembreteManual(t.id, t.nome)}
+                      disabled={enviandoEmailId === t.id}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                    >
+                      <i className="fa-solid fa-envelope" /> {enviandoEmailId === t.id ? 'A enviar...' : 'Enviar Lembrete'}
                     </button>
 
                     <div className="border-t border-gray-200 my-0.5"></div>
