@@ -40,6 +40,17 @@ export default function RootLayout({
           rel="stylesheet" 
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
         />
+        {/* Script para forçar o site a iniciar sempre no topo ao atualizar a página */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (history.scrollRestoration) {
+                history.scrollRestoration = 'manual';
+              }
+              window.scrollTo(0, 0);
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased">
         {children}
