@@ -213,33 +213,33 @@ export default function AdminPage() {
         </Link>
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-white shadow-sm rounded-lg text-sm overflow-hidden">
+      <div className="overflow-x-auto shadow-sm rounded-lg border border-emerald-100 bg-white">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-emerald-600 text-white">
-              <th className="p-3 text-left w-20">Posição</th>
-              <th className="p-3 text-left min-w-[220px]">Terapeuta, Contatos e Datas</th>
-              <th className="p-3 text-center">Status</th>
-              <th className="p-3 text-center w-52">Ações e Gestão</th>
+              <th className="p-4 text-left w-20">Posição</th>
+              <th className="p-4 text-left min-w-[220px]">Terapeuta, Contatos e Datas</th>
+              <th className="p-4 text-center">Status</th>
+              <th className="p-4 text-center w-52">Ações e Gestão</th>
             </tr>
           </thead>
           <tbody>
             {terapeutas.map((t) => (
-              <tr key={t.id} className="border-b border-emerald-50 hover:bg-emerald-50/50">
+              <tr key={t.id} className="border-b border-emerald-100/80 hover:bg-emerald-50/40 transition-colors">
                 
-                <td className="p-3 align-top">
+                <td className="p-4 align-top">
                   <input 
                     type="number" 
                     placeholder="Nº"
                     defaultValue={t.ordem || ''}
                     onBlur={(e) => atualizarOrdem(t.id, e.target.value)}
-                    className="w-16 border border-emerald-300 rounded p-1.5 text-center text-sm bg-emerald-50 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    className="w-16 border border-emerald-300 rounded p-1.5 text-center text-sm bg-emerald-50/50 focus:ring-2 focus:ring-emerald-500 outline-none"
                   />
                 </td>
 
-                <td className="p-3 align-top">
-                  <div className="font-bold text-emerald-900">{t.nome}</div>
-                  <div className="text-gray-500 text-xs">{t.email}</div>
+                <td className="p-4 align-top">
+                  <div className="font-bold text-emerald-900 text-base">{t.nome}</div>
+                  <div className="text-gray-500 text-xs mb-1">{t.email}</div>
                   
                   <div className="text-xs text-emerald-700 font-medium mb-2">
                     {t.telefone ? (
@@ -261,19 +261,19 @@ export default function AdminPage() {
                   </div>
                 </td>
 
-                <td className="p-3 align-top text-center">
-                   <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${t.status === 'ativo' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                <td className="p-4 align-top text-center">
+                   <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${t.status === 'ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}`}>
                     {t.status}
                    </span>
                 </td>
                 
-                <td className="p-3 align-top">
-                  <div className="flex flex-col gap-1.5">
+                <td className="p-4 align-top">
+                  <div className="flex flex-col gap-2">
                     
                     {/* BOTÃO PARA ABRIR O EDITOR COMPLETO DO PERFIL */}
                     <button 
                       onClick={() => abrirEditor(t)} 
-                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm"
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-md text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm"
                     >
                       <i className="fa-solid fa-pen-to-square" /> Editar Perfil Completo
                     </button>
@@ -282,17 +282,17 @@ export default function AdminPage() {
                     <button 
                       onClick={() => enviarLembreteManual(t.id, t.nome)}
                       disabled={enviandoEmailId === t.id}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm disabled:opacity-50"
                     >
                       <i className="fa-solid fa-envelope" /> {enviandoEmailId === t.id ? 'A enviar...' : 'Enviar Lembrete'}
                     </button>
 
-                    <div className="border-t border-gray-200 my-0.5"></div>
+                    <div className="border-t border-emerald-100 my-0.5"></div>
 
                     {t.status !== 'ativo' ? (
                       <>
                         <select 
-                          className="w-full border border-emerald-300 rounded p-1 text-xs bg-white outline-none"
+                          className="w-full border border-emerald-300 rounded p-1.5 text-xs bg-white outline-none"
                           value={meses[t.id] || 3}
                           onChange={(e) => handleMesesChange(t.id, parseInt(e.target.value))}
                         >
@@ -301,17 +301,17 @@ export default function AdminPage() {
                           <option value={6}>6 Meses Grátis</option>
                           <option value={12}>12 Meses Grátis</option>
                         </select>
-                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium">
+                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-md text-xs transition w-full font-medium">
                           Aprovar / Ativar
                         </button>
                       </>
                     ) : (
                       <>
-                        <button onClick={() => alterarStatus(t.id, 'desativar')} className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium mb-1">
+                        <button onClick={() => alterarStatus(t.id, 'desativar')} className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-md text-xs transition w-full font-medium mb-1">
                           Suspender Perfil
                         </button>
                         <select 
-                          className="w-full border border-blue-300 rounded p-1 text-xs bg-white outline-none"
+                          className="w-full border border-blue-300 rounded p-1.5 text-xs bg-white outline-none"
                           value={meses[t.id] || 1}
                           onChange={(e) => handleMesesChange(t.id, parseInt(e.target.value))}
                         >
@@ -320,14 +320,14 @@ export default function AdminPage() {
                           <option value={6}>Renovar +6 Meses</option>
                           <option value={12}>Renovar +1 Ano</option>
                         </select>
-                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium">
+                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs transition w-full font-medium">
                           Lançar Pagamento
                         </button>
                       </>
                     )}
 
-                    <div className="border-t border-gray-200 my-1"></div>
-                    <button onClick={() => deletarTerapeuta(t.id, t.email)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-xs transition w-full">
+                    <div className="border-t border-emerald-100 my-1"></div>
+                    <button onClick={() => deletarTerapeuta(t.id, t.email)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-xs transition w-full">
                       Excluir Conta
                     </button>
                   </div>
