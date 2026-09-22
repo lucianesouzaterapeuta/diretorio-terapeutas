@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-// ADICIONADO: Importei o ícone PlayCircle para usar no botão da entrevista
 import { ArrowLeft, AtSign, Compass, Globe, HeartHandshake, ShieldCheck, Sparkles, PlayCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { SiteHeader } from '@/components/site-header'
@@ -96,7 +95,7 @@ export default function TherapistProfilePage({ params }: any) {
   const instagram = therapist.instagram || ''
   const site = therapist.site || therapist.website || ''
   
-  // ADICIONADO: Variável para receber o link da entrevista vindo da base de dados
+  // Variável para receber o link da entrevista vindo da base de dados
   const linkEntrevista = therapist.link_entrevista || ''
 
   const numeroLimpo = telefone.replace(/\D/g, '')
@@ -165,7 +164,7 @@ export default function TherapistProfilePage({ params }: any) {
                   </a>
                 )}
                 
-                {/* ADICIONADO: Botão para a entrevista (só aparece se houver link cadastrado) */}
+                {/* Botão para a entrevista (só aparece se houver link cadastrado) */}
                 {linkEntrevista && (
                   <a href={linkEntrevista} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3.5 text-sm font-medium text-gray-700 transition-colors hover:bg-red-50 hover:text-red-600 sm:w-auto">
                     <PlayCircle className="h-4 w-4" /> Ver Entrevista

@@ -37,7 +37,6 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
       return dataVencimento >= hoje 
     })
 
-    // Removemos o Pedro daqui e deixamos apenas o que vem do banco (Supabase)
     setTherapists(filtrados)
     setLoading(false)
   }
