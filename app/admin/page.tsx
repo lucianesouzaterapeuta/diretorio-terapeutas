@@ -9,7 +9,6 @@ export default function AdminPage() {
   const [terapeutas, setTerapeutas] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [meses, setMeses] = useState<Record<string, number>>({})
-  const [enviandoEmail, setEnviandoEmail] = useState<Record<string, boolean>>({})
   const router = useRouter()
 
   useEffect(() => { carregarDados() }, [])
@@ -35,35 +34,6 @@ export default function AdminPage() {
 
   const handleMesesChange = (id: string, valor: number) => {
     setMeses(prev => ({ ...prev, [id]: valor }))
-  }
-
-  // FUNÇÃO PARA ENVIAR O LEMBRETE MANUAL POR E-MAIL
-  const enviarLembreteManual = async (emailTerapeuta: string, nomeTerapeuta: string, idTerapeuta: string) => {
-    if (!confirm(`Deseja enviar um e-mail de lembrete de pagamento para ${nomeTerapeuta} (${emailTerapeuta})?`)) {
-      return
-    }
-
-    setEnviandoEmail(prev => ({ ...prev, [idTerapeuta]: true }))
-
-    try {
-      const response = await fetch('/api/enviar-lembrete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailTerapeuta, nome: nomeTerapeuta })
-      })
-
-      const resultado = await response.json()
-
-      if (resultado.success) {
-        alert(`E-mail de lembrete enviado com sucesso para ${emailTerapeuta}!`)
-      } else {
-        alert(`Erro ao enviar e-mail: ${resultado.error || 'Erro desconhecido'}`)
-      }
-    } catch (err: any) {
-      alert(`Erro de conexão ao enviar e-mail: ${err.message}`)
-    } finally {
-      setEnviandoEmail(prev => ({ ...prev, [idTerapeuta]: false }))
-    }
   }
 
   const alterarStatus = async (id: string, acao: 'ativar' | 'desativar') => {
@@ -140,7 +110,7 @@ export default function AdminPage() {
               <th className="p-3 text-left w-20">Posição</th>
               <th className="p-3 text-left min-w-[220px]">Terapeuta, Contatos e Datas</th>
               <th className="p-3 text-center">Status</th>
-              <th className="p-3 text-center w-52">Ações de Acesso & Lembrete</th>
+              <th className="p-3 text-center w-48">Ações de Acesso</th>
             </tr>
           </thead>
           <tbody>
@@ -161,7 +131,6 @@ export default function AdminPage() {
                   <div className="font-bold text-emerald-900">{t.nome}</div>
                   <div className="text-gray-500 text-xs">{t.email}</div>
                   
-                  {/* WHATSAPP EXIBIDO AQUI */}
                   <div className="text-xs text-emerald-700 font-medium mb-2">
                     {t.telefone ? (
                       <a href={`https://wa.me/${t.telefone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1 mt-0.5">
@@ -191,17 +160,6 @@ export default function AdminPage() {
                 <td className="p-3 align-top">
                   <div className="flex flex-col gap-1.5">
                     
-                    {/* BOTÃO DE ENVIAR LEMBRETE MANUAL POR E-MAIL */}
-                    <button 
-                      onClick={() => enviarLembreteManual(t.email, t.nome, t.id)}
-                      disabled={enviandoEmail[t.id]}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium flex items-center justify-center gap-1 disabled:opacity-50"
-                    >
-                      <i className="fa-solid fa-envelope" /> {enviandoEmail[t.id] ? 'Enviando...' : 'Enviar Lembrete (Email)'}
-                    </button>
-
-                    <div className="border-t border-gray-200 my-0.5"></div>
-
                     {t.status !== 'ativo' ? (
                       <>
                         <select 
