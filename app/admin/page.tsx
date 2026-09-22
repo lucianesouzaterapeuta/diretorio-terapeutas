@@ -9,6 +9,19 @@ export default function AdminPage() {
   const [terapeutas, setTerapeutas] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [meses, setMeses] = useState<Record<string, number>>({})
+  
+  // ESTADOS DO MODAL DE EDIÇÃO COMPLETA
+  const [editingTherapist, setEditingTherapist] = useState<any | null>(null)
+  const [editNome, setEditNome] = useState('')
+  const [editDescricao, setEditDescricao] = useState('')
+  const [editWhatsapp, setEditWhatsapp] = useState('')
+  const [editInstagram, setEditInstagram] = useState('')
+  const [editWebsite, setEditWebsite] = useState('')
+  const [editLinkEntrevista, setEditLinkEntrevista] = useState('')
+  const [editFotoUrl, setEditFotoUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [salvandoPerfil, setSalvandoPerfil] = useState(false)
+
   const router = useRouter()
 
   useEffect(() => { carregarDados() }, [])
@@ -34,6 +47,79 @@ export default function AdminPage() {
 
   const handleMesesChange = (id: string, valor: number) => {
     setMeses(prev => ({ ...prev, [id]: valor }))
+  }
+
+  // ABRIR O MODAL PREENCHIDO COM OS DADOS DO CLIENTE
+  const abrirEditor = (t: any) => {
+    setEditingTherapist(t)
+    setEditNome(t.nome || '')
+    setEditDescricao(t.descricao || '')
+    setEditWhatsapp(t.telefone || '')
+    setEditInstagram(t.instagram || '')
+    setEditWebsite(t.website || '')
+    setEditLinkEntrevista(t.link_entrevista || '')
+    setEditFotoUrl(t.foto_url || '')
+  }
+
+  // UPLOAD DE FOTO DENTRO DO PAINEL ADMIN
+  const handleUploadFotoAdmin = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true)
+      if (!e.target.files || e.target.files.length === 0) return
+      const file = e.target.files[0]
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, file)
+      if (uploadError) throw uploadError
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(fileName)
+      setEditFotoUrl(data.publicUrl)
+      alert('Foto alterada com sucesso! Lembre-se de clicar em "Salvar Alterações".')
+    } catch (error: any) {
+      alert(`Erro ao subir foto: ${error.message}`)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // SALVAR PERFIL EDITADO NO SUPABASE
+  const salvarPerfilEditado = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingTherapist) return
+    setSalvandoPerfil(true)
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        nome: editNome,
+        descricao: editDescricao,
+        telefone: editWhatsapp,
+        instagram: editInstagram,
+        website: editWebsite,
+        link_entrevista: editLinkEntrevista,
+        foto_url: editFotoUrl,
+      })
+      .eq('id', editingTherapist.id)
+
+    if (error) {
+      alert(`Erro ao salvar alterações: ${error.message}`)
+    } else {
+      alert('Perfil do terapeuta atualizado com sucesso!')
+      // Atualiza a lista na hora sem precisar recarregar a página
+      setTerapeutas(terapeutas.map(t => t.id === editingTherapist.id ? {
+        ...t,
+        nome: editNome,
+        descricao: editDescricao,
+        telefone: editWhatsapp,
+        instagram: editInstagram,
+        website: editWebsite,
+        link_entrevista: editLinkEntrevista,
+        foto_url: editFotoUrl,
+      } : t))
+      setEditingTherapist(null)
+    }
+    setSalvandoPerfil(false)
   }
 
   const alterarStatus = async (id: string, acao: 'ativar' | 'desativar') => {
@@ -110,7 +196,7 @@ export default function AdminPage() {
               <th className="p-3 text-left w-20">Posição</th>
               <th className="p-3 text-left min-w-[220px]">Terapeuta, Contatos e Datas</th>
               <th className="p-3 text-center">Status</th>
-              <th className="p-3 text-center w-48">Ações de Acesso</th>
+              <th className="p-3 text-center w-52">Ações e Gestão</th>
             </tr>
           </thead>
           <tbody>
@@ -160,6 +246,16 @@ export default function AdminPage() {
                 <td className="p-3 align-top">
                   <div className="flex flex-col gap-1.5">
                     
+                    {/* BOTÃO PARA ABRIR O EDITOR COMPLETO DO PERFIL */}
+                    <button 
+                      onClick={() => abrirEditor(t)} 
+                      className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <i className="fa-solid fa-pen-to-square" /> Editar Perfil Completo
+                    </button>
+
+                    <div className="border-t border-gray-200 my-0.5"></div>
+
                     {t.status !== 'ativo' ? (
                       <>
                         <select 
@@ -208,6 +304,123 @@ export default function AdminPage() {
           </tbody>
         </table>
       </div>
+
+      {/* MODAL DE EDIÇÃO COMPLETA DO PERFIL */}
+      {editingTherapist && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 relative my-8 max-h-[90vh] overflow-y-auto">
+            
+            <div className="flex justify-between items-center mb-4 border-b pb-3">
+              <h2 className="text-xl font-bold text-emerald-900">Editar Perfil: {editingTherapist.nome}</h2>
+              <button 
+                onClick={() => setEditingTherapist(null)}
+                className="text-stone-400 hover:text-stone-700 text-lg font-bold px-2 py-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={salvarPerfilEditado} className="space-y-4">
+              
+              {/* Foto de Perfil */}
+              <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 rounded-md bg-slate-50">
+                <div className="h-32 w-24 bg-slate-200 mb-2 flex items-center justify-center text-slate-400 rounded-md shadow-sm border border-slate-300 overflow-hidden bg-cover bg-center" style={{ backgroundImage: editFotoUrl ? `url(${editFotoUrl})` : 'none' }}>
+                   {!editFotoUrl && 'Sem Foto'}
+                </div>
+                <div className="relative">
+                  <button type="button" className="text-xs font-semibold text-emerald-700 hover:text-emerald-800">
+                    {uploading ? 'Enviando foto...' : 'Alterar Foto de Perfil'}
+                  </button>
+                  <input type="file" accept="image/*" onChange={handleUploadFotoAdmin} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Nome Profissional</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={editNome} 
+                  onChange={(e) => setEditNome(e.target.value)} 
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Sobre mim (Bio)</label>
+                <textarea 
+                  rows={4} 
+                  required 
+                  value={editDescricao} 
+                  onChange={(e) => setEditDescricao(e.target.value)} 
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">WhatsApp</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={editWhatsapp} 
+                  onChange={(e) => setEditWhatsapp(e.target.value)} 
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Instagram</label>
+                <input 
+                  type="text" 
+                  value={editInstagram} 
+                  onChange={(e) => setEditInstagram(e.target.value)} 
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Site</label>
+                <input 
+                  type="url" 
+                  value={editWebsite} 
+                  onChange={(e) => setEditWebsite(e.target.value)} 
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Link da Entrevista (YouTube / Podcast)</label>
+                <input 
+                  type="url" 
+                  value={editLinkEntrevista} 
+                  onChange={(e) => setEditLinkEntrevista(e.target.value)} 
+                  placeholder="Ex: https://youtu.be/..." 
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t">
+                <button 
+                  type="button" 
+                  onClick={() => setEditingTherapist(null)}
+                  className="flex-1 bg-stone-200 hover:bg-stone-300 text-stone-700 py-2.5 rounded-lg font-medium text-sm transition"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={salvandoPerfil || uploading} 
+                  className="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded-lg font-medium text-sm transition shadow-sm disabled:opacity-50"
+                >
+                  {salvandoPerfil ? 'Salvando...' : 'Salvar Alterações'}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

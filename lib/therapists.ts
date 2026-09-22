@@ -94,4 +94,4 @@ export function matchesTherapistSearch(therapist: Therapist, query: string) {
   )
 
   return searchableText.includes(normalizedQuery)
-}
+}  
