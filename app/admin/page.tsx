@@ -213,19 +213,24 @@ export default function AdminPage() {
         </Link>
       </div>
       
-      <div className="overflow-x-auto shadow-sm rounded-lg border border-emerald-100 bg-white">
+      <div className="overflow-x-auto shadow-sm rounded-xl border border-emerald-200/80 bg-white">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-emerald-600 text-white">
-              <th className="p-4 text-left w-20">Posição</th>
-              <th className="p-4 text-left min-w-[220px]">Terapeuta, Contatos e Datas</th>
-              <th className="p-4 text-center">Status</th>
-              <th className="p-4 text-center w-52">Ações e Gestão</th>
+              <th className="p-4 text-left w-20 font-semibold">Posição</th>
+              <th className="p-4 text-left min-w-[220px] font-semibold">Terapeuta, Contatos e Datas</th>
+              <th className="p-4 text-center font-semibold">Status</th>
+              <th className="p-4 text-center w-52 font-semibold">Ações e Gestão</th>
             </tr>
           </thead>
           <tbody>
-            {terapeutas.map((t) => (
-              <tr key={t.id} className="border-b border-emerald-100/80 hover:bg-emerald-50/40 transition-colors">
+            {terapeutas.map((t, index) => (
+              <tr 
+                key={t.id} 
+                className={`border-b border-emerald-200/60 hover:bg-emerald-50/50 transition-colors ${
+                  index > 0 ? 'border-t-2 border-t-emerald-100/60' : ''
+                }`}
+              >
                 
                 <td className="p-4 align-top">
                   <input 
@@ -287,7 +292,7 @@ export default function AdminPage() {
                       <i className="fa-solid fa-envelope" /> {enviandoEmailId === t.id ? 'A enviar...' : 'Enviar Lembrete'}
                     </button>
 
-                    <div className="border-t border-emerald-100 my-0.5"></div>
+                    <div className="border-t border-emerald-200/60 my-1"></div>
 
                     {t.status !== 'ativo' ? (
                       <>
@@ -326,7 +331,7 @@ export default function AdminPage() {
                       </>
                     )}
 
-                    <div className="border-t border-emerald-100 my-1"></div>
+                    <div className="border-t border-emerald-200/60 my-1"></div>
                     <button onClick={() => deletarTerapeuta(t.id, t.email)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-xs transition w-full">
                       Excluir Conta
                     </button>
