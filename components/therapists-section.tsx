@@ -6,6 +6,19 @@ import { TherapistCard } from './therapist-card'
 
 const ITEMS_POR_PAGINA = 12
 
+// DADOS FIXOS: Injetando o Pedro Guimarães manualmente no código
+const PEDRO_GUIMARAES = {
+  id: 'pedro-guimaraes',
+  nome: 'Pedro Guimarães',
+  cargo: 'Membro • Sócio Idealizador',
+  especialidade: 'Terapeuta Emocional',
+  descricao: 'Terapeuta Emocional, formado em Terapia de Reprocessamento Generativo (TRG), mentor de terapeutas, analista corporal e comportamental, terapeuta de casais e especializado no atendimento de homens. Palestrante.',
+  instagram: 'pedroguimaraes_terapeuta',
+  whatsapp: '5521971978374',
+  foto_url: 'https://zsfxmaitngqpnzmugdwe.supabase.co/storage/v1/object/public/avatars/0.7259628753800912.jpg',
+  status: 'ativo'
+}
+
 export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
   const [therapists, setTherapists] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -44,7 +57,8 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
       return dataVencimento >= hoje 
     })
 
-    setTherapists(filtrados)
+    // INSERINDO O PEDRO AQUI: Ele entra na primeira posição do array `[PEDRO_GUIMARAES, ...outros]`
+    setTherapists([PEDRO_GUIMARAES, ...filtrados])
     setLoading(false)
   }
 

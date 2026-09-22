@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, AtSign, Compass, Globe, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react'
+// ADICIONADO: Importei o ícone PlayCircle para usar no botão da entrevista
+import { ArrowLeft, AtSign, Compass, Globe, HeartHandshake, ShieldCheck, Sparkles, PlayCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
@@ -94,6 +95,9 @@ export default function TherapistProfilePage({ params }: any) {
   const descricao = therapist.descricao || therapist.sobre || therapist.bio || 'Profissional parceiro da plataforma.'
   const instagram = therapist.instagram || ''
   const site = therapist.site || therapist.website || ''
+  
+  // ADICIONADO: Variável para receber o link da entrevista vindo da base de dados
+  const linkEntrevista = therapist.link_entrevista || ''
 
   const numeroLimpo = telefone.replace(/\D/g, '')
   const whatsappUrl = numeroLimpo ? `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(`Olá ${nome}, encontrei seu perfil na plataforma Conversas que Curam e gostaria de saber mais sobre seus atendimentos.`)}` : '#'
@@ -158,6 +162,13 @@ export default function TherapistProfilePage({ params }: any) {
                 {site && (
                   <a href={site} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-[#006d5b] sm:w-auto">
                     <Globe className="h-4 w-4" /> Visitar site
+                  </a>
+                )}
+                
+                {/* ADICIONADO: Botão para a entrevista (só aparece se houver link cadastrado) */}
+                {linkEntrevista && (
+                  <a href={linkEntrevista} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3.5 text-sm font-medium text-gray-700 transition-colors hover:bg-red-50 hover:text-red-600 sm:w-auto">
+                    <PlayCircle className="h-4 w-4" /> Ver Entrevista
                   </a>
                 )}
               </div>

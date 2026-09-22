@@ -8,8 +8,9 @@ import { supabase } from '@/lib/supabase'
 export default function AdminPage() {
   const [terapeutas, setTerapeutas] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  // Novo estado para controlar os meses selecionados de cada terapeuta individualmente
   const [meses, setMeses] = useState<Record<string, number>>({})
+  // NOVO: Estado para armazenar os links da Hotmart de cada perfil
+  const [linksHotmart, setLinksHotmart] = useState<Record<string, string>>({})
   const router = useRouter()
 
   useEffect(() => { carregarDados() }, [])
@@ -28,7 +29,16 @@ export default function AdminPage() {
       .order('ordem', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
       
-    if (data) setTerapeutas(data)
+    if (data) {
+      setTerapeutas(data)
+      
+      // Mapeia os links da Hotmart que já estão salvos no banco
+      const initialLinks: Record<string, string> = {}
+      data.forEach(t => {
+        if (t.link_hotmart) initialLinks[t.id] = t.link_hotmart
+      })
+      setLinksHotmart(initialLinks)
+    }
     setLoading(false)
   }
 
@@ -37,18 +47,31 @@ export default function AdminPage() {
     setMeses(prev => ({ ...prev, [id]: valor }))
   }
 
-  // Nova função unificada para ativar com meses ou desativar
+  // Função para salvar o Link da Hotmart no banco de dados
+  const salvarLinkHotmart = async (id: string) => {
+    const link = linksHotmart[id] || ''
+    const { error } = await supabase.from('profiles').update({ link_hotmart: link }).eq('id', id)
+    
+    if (error) {
+      alert("Erro ao salvar link da Hotmart.")
+    } else {
+      alert("Link de pagamento salvo com sucesso!")
+    }
+  }
+
   const alterarStatus = async (id: string, acao: 'ativar' | 'desativar') => {
     if (acao === 'desativar') {
       const { error } = await supabase.from('profiles').update({ status: 'pendente' }).eq('id', id)
       if (!error) setTerapeutas(terapeutas.map(t => t.id === id ? { ...t, status: 'pendente' } : t))
     } else {
-      // Pega os meses selecionados (padrão é 1 se não tiver sido alterado)
-      const qtdMeses = meses[id] || 1;
-      const dataVencimento = new Date();
-      dataVencimento.setMonth(dataVencimento.getMonth() + qtdMeses);
+      // Pega os meses selecionados. Se não alterou, assume 3 meses por padrão para novos (trial) ou 1 para renovação
+      const isNovo = terapeutas.find(t => t.id === id)?.status !== 'ativo'
+      const qtdMeses = meses[id] || (isNovo ? 3 : 1)
+      
+      const dataVencimento = new Date()
+      dataVencimento.setMonth(dataVencimento.getMonth() + qtdMeses)
 
-      const dataIso = dataVencimento.toISOString();
+      const dataIso = dataVencimento.toISOString()
 
       const { error } = await supabase.from('profiles').update({ 
         status: 'ativo',
@@ -61,15 +84,14 @@ export default function AdminPage() {
           status: 'ativo', 
           data_expiracao: dataIso 
         } : t))
-        alert(`Terapeuta ativado/renovado com sucesso por ${qtdMeses} mês(es)!`);
+        alert(`Terapeuta ativado/renovado com sucesso por ${qtdMeses} mês(es)!`)
       }
     }
   }
 
   const deletarTerapeuta = async (id: string, email: string) => {
-    // Nova trava de segurança baseada no e-mail (impossível de falhar)
     if (email === 'lucianesouzaterapeuta@gmail.com') {
-      return alert("Ação bloqueada: Não é possível excluir o perfil da proprietária principal da plataforma.");
+      return alert("Ação bloqueada: Não é possível excluir o perfil da proprietária principal da plataforma.")
     }
     
     if (confirm('Tem certeza que deseja excluir este terapeuta?')) {
@@ -79,12 +101,12 @@ export default function AdminPage() {
   }
 
   const atualizarOrdem = async (id: string, ordem: string) => {
-    const valor = ordem === '' ? null : parseInt(ordem);
+    const valor = ordem === '' ? null : parseInt(ordem)
     const { error } = await supabase.from('profiles').update({ ordem: valor }).eq('id', id)
     if (error) {
-      alert("Erro ao salvar posição");
+      alert("Erro ao salvar posição")
     } else {
-      setTerapeutas(terapeutas.map(t => t.id === id ? { ...t, ordem: valor } : t));
+      setTerapeutas(terapeutas.map(t => t.id === id ? { ...t, ordem: valor } : t))
     }
   }
 
@@ -93,7 +115,6 @@ export default function AdminPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto">
       
-      {/* CABEÇALHO COM O NOVO BOTÃO DE EDIÇÃO APONTANDO PARA /perfil */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold text-emerald-800">Painel da Proprietária</h1>
         
@@ -111,10 +132,10 @@ export default function AdminPage() {
           <thead>
             <tr className="bg-emerald-600 text-white">
               <th className="p-3 text-left w-20">Posição</th>
-              <th className="p-3 text-left">Terapeuta e Datas</th>
-              <th className="p-3 text-left">WhatsApp</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-center">Ações de Acesso</th>
+              <th className="p-3 text-left min-w-[200px]">Terapeuta e Datas</th>
+              <th className="p-3 text-left">Hotmart / Pagamento</th>
+              <th className="p-3 text-center">Status</th>
+              <th className="p-3 text-center w-48">Ações de Acesso</th>
             </tr>
           </thead>
           <tbody>
@@ -135,9 +156,8 @@ export default function AdminPage() {
                   <div className="font-bold text-emerald-900">{t.nome}</div>
                   <div className="text-gray-500 text-xs mb-2">{t.email}</div>
                   
-                  {/* NOVAS INFORMAÇÕES DE DATAS AQUI */}
                   <div className="text-[11px] text-gray-500 flex flex-col gap-0.5 border-l-2 border-emerald-200 pl-2">
-                    <p><strong>Cadastrado em:</strong> {t.created_at ? new Date(t.created_at).toLocaleDateString('pt-BR') : 'N/A'}</p>
+                    <p><strong>Cadastrado:</strong> {t.created_at ? new Date(t.created_at).toLocaleDateString('pt-BR') : 'N/A'}</p>
                     {t.data_expiracao && (
                       <p className={new Date(t.data_expiracao) < new Date() ? 'text-red-500 font-semibold' : 'text-emerald-600 font-semibold'}>
                         <strong>Vencimento:</strong> {new Date(t.data_expiracao).toLocaleDateString('pt-BR')}
@@ -146,45 +166,54 @@ export default function AdminPage() {
                   </div>
                 </td>
                 
+                {/* NOVA COLUNA: Hotmart */}
                 <td className="p-3 align-top">
-                  {t.telefone ? (
-                    <a href={`https://wa.me/${t.telefone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="text-emerald-700 font-medium hover:underline">
-                      {t.telefone}
-                    </a>
-                  ) : <span className="text-gray-400 text-xs">Não informado</span>}
+                  <div className="flex flex-col gap-2">
+                    <input 
+                      type="url"
+                      placeholder="Link Checkout Hotmart"
+                      value={linksHotmart[t.id] || ''}
+                      onChange={(e) => setLinksHotmart({...linksHotmart, [t.id]: e.target.value})}
+                      className="w-full border border-emerald-300 rounded p-1.5 text-xs bg-white focus:ring-2 focus:ring-emerald-500 outline-none"
+                    />
+                    <button 
+                      onClick={() => salvarLinkHotmart(t.id)} 
+                      className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] px-2 py-1.5 rounded font-semibold transition w-fit"
+                    >
+                      Salvar Link
+                    </button>
+                  </div>
                 </td>
 
-                <td className="p-3 align-top">
+                <td className="p-3 align-top text-center">
                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${t.status === 'ativo' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
                     {t.status}
                    </span>
                 </td>
                 
-                <td className="p-3 align-top w-40">
+                <td className="p-3 align-top">
                   <div className="flex flex-col gap-1.5">
-                    {/* Se estiver pendente, mostra opções para ATIVAR */}
+                    
                     {t.status !== 'ativo' ? (
                       <>
                         <select 
                           className="w-full border border-emerald-300 rounded p-1 text-xs bg-white outline-none"
-                          value={meses[t.id] || 1}
+                          value={meses[t.id] || 3} // Padrão agora é 3 meses
                           onChange={(e) => handleMesesChange(t.id, parseInt(e.target.value))}
                         >
-                          <option value={1}>Libera 1 Mês</option>
-                          <option value={2}>Libera 2 Meses</option>
-                          <option value={3}>Libera 3 Meses</option>
-                          <option value={6}>Libera 6 Meses</option>
-                          <option value={12}>Libera 12 Meses</option>
+                          <option value={1}>1 Mês Grátis</option>
+                          <option value={3}>3 Meses Grátis (Trial)</option>
+                          <option value={6}>6 Meses Grátis</option>
+                          <option value={12}>12 Meses Grátis</option>
                         </select>
-                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-emerald-600 hover:opacity-90 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium">
-                          Ativar Perfil
+                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium">
+                          Aprovar / Ativar
                         </button>
                       </>
                     ) : (
-                      /* Se já estiver ativo, mostra botão de desativar E botão de renovar */
                       <>
-                        <button onClick={() => alterarStatus(t.id, 'desativar')} className="bg-amber-500 hover:opacity-90 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium mb-1">
-                          Desativar Agora
+                        <button onClick={() => alterarStatus(t.id, 'desativar')} className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium mb-1">
+                          Suspender Perfil
                         </button>
                         <div className="border-t border-gray-100 my-0.5"></div>
                         <select 
@@ -192,14 +221,13 @@ export default function AdminPage() {
                           value={meses[t.id] || 1}
                           onChange={(e) => handleMesesChange(t.id, parseInt(e.target.value))}
                         >
-                          <option value={1}>Renova +1 Mês</option>
-                          <option value={2}>Renova +2 Meses</option>
-                          <option value={3}>Renova +3 Meses</option>
-                          <option value={6}>Renova +6 Meses</option>
-                          <option value={12}>Renova +12 Meses</option>
+                          <option value={1}>Renovar +1 Mês</option>
+                          <option value={3}>Renovar +3 Meses</option>
+                          <option value={6}>Renovar +6 Meses</option>
+                          <option value={12}>Renovar +1 Ano</option>
                         </select>
-                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-blue-600 hover:opacity-90 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium">
-                          Renovar Validade
+                        <button onClick={() => alterarStatus(t.id, 'ativar')} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-xs transition w-full font-medium">
+                          Lançar Pagamento
                         </button>
                       </>
                     )}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase' // <-- Ajustado para o atalho correto do seu projeto
+import { supabase } from '@/lib/supabase'
 import { SiteHeader } from '@/components/site-header'
 
 export default function EditarPerfilPage() {
@@ -14,7 +14,14 @@ export default function EditarPerfilPage() {
   const [instagram, setInstagram] = useState('')
   const [website, setWebsite] = useState('')
   const [fotoUrl, setFotoUrl] = useState('')
-  const [isAdmin, setIsAdmin] = useState(false) // <-- Verifica se é a proprietária
+  const [linkEntrevista, setLinkEntrevista] = useState('')
+  
+  // ESTADOS DA COBRANÇA
+  const [status, setStatus] = useState('ativo')
+  const [diasRestantes, setDiasRestantes] = useState<number | null>(null)
+  const [linkHotmart, setLinkHotmart] = useState('')
+
+  const [isAdmin, setIsAdmin] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [salvando, setSalvando] = useState(false)
@@ -34,7 +41,6 @@ export default function EditarPerfilPage() {
         return
       }
 
-      // Se for o e-mail da proprietária, libera o botão de voltar ao painel admin
       if (user.email === 'lucianesouzaterapeuta@gmail.com') {
         setIsAdmin(true)
       }
@@ -55,6 +61,20 @@ export default function EditarPerfilPage() {
         setInstagram(data.instagram || '')
         setWebsite(data.website || '')
         setFotoUrl(data.foto_url || '')
+        setLinkEntrevista(data.link_entrevista || '')
+        
+        // Puxa os dados de pagamento do banco
+        setStatus(data.status || 'ativo')
+        setLinkHotmart(data.link_hotmart || '')
+        
+        // Calcula se está perto de vencer (para mostrar o aviso)
+        if (data.data_expiracao) {
+          const hoje = new Date()
+          const vencimento = new Date(data.data_expiracao)
+          const diferencaTempo = vencimento.getTime() - hoje.getTime()
+          const diferencaDias = Math.ceil(diferencaTempo / (1000 * 3600 * 24))
+          setDiasRestantes(diferencaDias)
+        }
       }
     } catch (error: any) {
       setMensagem(`Erro ao carregar dados: ${error.message}`)
@@ -110,7 +130,8 @@ export default function EditarPerfilPage() {
         telefone: whatsapp,
         instagram,
         website,
-        foto_url: fotoUrl
+        foto_url: fotoUrl,
+        link_entrevista: linkEntrevista
       })
       .eq('id', user.id)
 
@@ -133,11 +154,55 @@ export default function EditarPerfilPage() {
     )
   }
 
+  // Define a regra: Mostra o aviso se estiver suspenso OU se faltar 10 dias ou menos pro vencimento.
+  const mostrarAviso = status !== 'ativo' || (diasRestantes !== null && diasRestantes <= 10)
+  const estaVencido = status !== 'ativo' || (diasRestantes !== null && diasRestantes < 0)
+
   return (
     <>
       <SiteHeader />
       <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
         <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-md border-t-4 border-emerald-700 mt-6 mb-10">
+          
+          {/* BANNER DINÂMICO DE PAGAMENTO / HOTMART */}
+          {mostrarAviso && (
+            <div className={`mb-8 p-5 rounded-lg border-2 text-center shadow-sm ${estaVencido ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+              
+              <div className="flex justify-center mb-2">
+                <i className={`text-3xl ${estaVencido ? 'fa-solid fa-lock text-red-500' : 'fa-regular fa-clock text-amber-500'}`} aria-hidden="true" />
+              </div>
+              
+              <h3 className={`text-lg font-bold mb-1 ${estaVencido ? 'text-red-800' : 'text-amber-800'}`}>
+                {estaVencido 
+                  ? 'Seu perfil está suspenso/inativo!' 
+                  : `Seu período grátis acaba em ${diasRestantes} dias!`}
+              </h3>
+              
+              <p className="text-sm text-slate-700 mb-5 leading-relaxed">
+                {estaVencido
+                  ? 'Para voltar a aparecer na plataforma e receber novos clientes, regularize sua assinatura.'
+                  : 'Assine agora para garantir que seu perfil continue visível na plataforma sem interrupções.'}
+              </p>
+
+              {linkHotmart ? (
+                <a 
+                  href={linkHotmart} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center justify-center gap-2 w-full px-4 py-3.5 rounded-md text-white font-bold transition-colors shadow-md ${estaVencido ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-500 hover:bg-amber-600'}`}
+                >
+                  Assinar via Hotmart
+                </a>
+              ) : (
+                <p className="text-xs font-bold text-slate-500 uppercase mt-2 bg-white/50 py-2 rounded">
+                  <i className="fa-solid fa-circle-notch fa-spin mr-1"></i> Aguardando liberação do Link pela administração...
+                </p>
+              )}
+            </div>
+          )}
+          {/* FIM DO BANNER */}
+
+
           <h1 className="text-2xl font-bold text-center mb-2 text-slate-800">Editar Meu Perfil</h1>
           <p className="text-center text-slate-600 mb-6 text-sm">Mantenha os seus dados de contato e bio sempre atualizados.</p>
 
@@ -184,6 +249,18 @@ export default function EditarPerfilPage() {
               <label className="block text-sm font-medium text-slate-700">Link do Site</label>
               <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
             </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Link da Entrevista (YouTube / Podcast)</label>
+              <input 
+                type="url" 
+                value={linkEntrevista} 
+                onChange={(e) => setLinkEntrevista(e.target.value)} 
+                placeholder="Ex: https://youtu.be/..." 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" 
+              />
+              <p className="mt-1 text-xs text-slate-500">Deixe em branco caso não tenha uma entrevista gravada.</p>
+            </div>
 
             <div className="pt-2 flex flex-col gap-3">
               <button type="submit" disabled={salvando || uploading} className="w-full bg-emerald-700 text-white p-3 rounded-md hover:bg-emerald-800 disabled:bg-emerald-300 transition-colors font-medium text-lg shadow-sm">
@@ -201,7 +278,6 @@ export default function EditarPerfilPage() {
                 </Link>
               )}
 
-              {/* ESTE BOTÃO SÓ APARECE PARA A PROPRIETÁRIA */}
               {isAdmin && (
                 <Link
                   href="/admin"

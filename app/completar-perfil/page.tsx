@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -9,6 +9,8 @@ export default function CompletarPerfilPage() {
   const [whatsapp, setWhatsapp] = useState('')
   const [instagram, setInstagram] = useState('')
   const [website, setWebsite] = useState('')
+  // NOVO ESTADO: Para receber o link da entrevista no momento do cadastro inicial
+  const [linkEntrevista, setLinkEntrevista] = useState('')
   const [fotoUrl, setFotoUrl] = useState('')
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -64,7 +66,7 @@ export default function CompletarPerfilPage() {
       return
     }
 
-    // Salva todos os textos + a URL da foto que acabamos de subir
+    // Salva todos os textos + a URL da foto + NOVO: o link da entrevista
     const { error } = await supabase
       .from('profiles')
       .update({ 
@@ -72,6 +74,7 @@ export default function CompletarPerfilPage() {
         telefone: whatsapp, 
         instagram, 
         website,
+        link_entrevista: linkEntrevista,
         foto_url: fotoUrl 
       })
       .eq('id', user.id)
@@ -137,6 +140,19 @@ export default function CompletarPerfilPage() {
             <label className="block text-sm font-medium text-slate-700">Link do Site Profissional (Opcional)</label>
             <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
           </div>
+          
+          {/* NOVO: Campo para inserir o Link da Entrevista */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Link da Entrevista / Podcast (Opcional)</label>
+            <input 
+              type="url" 
+              value={linkEntrevista} 
+              onChange={(e) => setLinkEntrevista(e.target.value)} 
+              placeholder="Ex: https://youtu.be/..." 
+              className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" 
+            />
+          </div>
+
           <button type="submit" disabled={loading || uploading} className="w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 disabled:bg-green-300 transition-colors mt-6 font-medium text-lg">
             {loading ? 'A guardar...' : 'Salvar Perfil e Finalizar'}
           </button>

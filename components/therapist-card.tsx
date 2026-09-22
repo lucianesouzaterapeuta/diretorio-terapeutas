@@ -15,7 +15,11 @@ export function TherapistCard({ therapist }: { therapist: any }) {
   const foto = therapist?.foto_url || therapist?.foto_perfil || therapist?.foto || therapist?.image || '/placeholder.svg'
   const especialidade = therapist?.especialidade || therapist?.specialty || 'Atendimento Terapêutico'
   const descricao = therapist?.descricao || therapist?.sobre || therapist?.bio || 'Sem descrição.'
-  const fundadora = therapist?.fundadora || therapist?.founder || false
+  
+  // NOVA LÓGICA DO BADGE (SELO): 
+  // Pega o 'cargo' (ex: "Sócio Idealizador"). Se não tiver, verifica se é fundadora e escreve "Fundadora". Se nenhum dos dois, fica null (não mostra o selo).
+  const isFundadoraBoolean = therapist?.fundadora || therapist?.founder || false;
+  const badgeTexto = therapist?.cargo || (isFundadoraBoolean ? 'Fundadora' : null);
   
   const numeroLimpo = telefone.replace(/\D/g, '')
   const whatsappUrl = numeroLimpo 
@@ -32,9 +36,11 @@ export function TherapistCard({ therapist }: { therapist: any }) {
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw" 
           className="object-cover object-top transition-transform duration-700 hover:scale-110" 
         />
-        {fundadora && (
+        
+        {/* Renderiza o selo dinamicamente se existir cargo ou for fundadora */}
+        {badgeTexto && (
           <span className="absolute left-3 top-3 rounded-full bg-emerald-600 px-3 py-1 text-[10px] sm:text-xs font-semibold text-white shadow-sm">
-            Fundadora
+            {badgeTexto}
           </span>
         )}
       </div>
