@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { SiteHeader } from '@/components/site-header'
 
+// NOVO: Cole aqui o seu ÚNICO Link de Checkout da Hotmart
+const LINK_CHECKOUT_HOTMART = "https://pay.hotmart.com/SEU_LINK_AQUI"
+
 export default function EditarPerfilPage() {
   const [userId, setUserId] = useState('')
   const [nome, setNome] = useState('')
@@ -19,7 +22,6 @@ export default function EditarPerfilPage() {
   // ESTADOS DA COBRANÇA
   const [status, setStatus] = useState('ativo')
   const [diasRestantes, setDiasRestantes] = useState<number | null>(null)
-  const [linkHotmart, setLinkHotmart] = useState('')
 
   const [isAdmin, setIsAdmin] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -63,9 +65,8 @@ export default function EditarPerfilPage() {
         setFotoUrl(data.foto_url || '')
         setLinkEntrevista(data.link_entrevista || '')
         
-        // Puxa os dados de pagamento do banco
+        // Puxa o status de pagamento do banco
         setStatus(data.status || 'ativo')
-        setLinkHotmart(data.link_hotmart || '')
         
         // Calcula se está perto de vencer (para mostrar o aviso)
         if (data.data_expiracao) {
@@ -184,20 +185,14 @@ export default function EditarPerfilPage() {
                   : 'Assine agora para garantir que seu perfil continue visível na plataforma sem interrupções.'}
               </p>
 
-              {linkHotmart ? (
-                <a 
-                  href={linkHotmart} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center justify-center gap-2 w-full px-4 py-3.5 rounded-md text-white font-bold transition-colors shadow-md ${estaVencido ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-500 hover:bg-amber-600'}`}
-                >
-                  Assinar via Hotmart
-                </a>
-              ) : (
-                <p className="text-xs font-bold text-slate-500 uppercase mt-2 bg-white/50 py-2 rounded">
-                  <i className="fa-solid fa-circle-notch fa-spin mr-1"></i> Aguardando liberação do Link pela administração...
-                </p>
-              )}
+              <a 
+                href={LINK_CHECKOUT_HOTMART} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={`inline-flex items-center justify-center gap-2 w-full px-4 py-3.5 rounded-md text-white font-bold transition-colors shadow-md ${estaVencido ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-500 hover:bg-amber-600'}`}
+              >
+                Assinar via Hotmart
+              </a>
             </div>
           )}
           {/* FIM DO BANNER */}
