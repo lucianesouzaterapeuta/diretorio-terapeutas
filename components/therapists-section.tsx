@@ -6,19 +6,6 @@ import { TherapistCard } from './therapist-card'
 
 const ITEMS_POR_PAGINA = 12
 
-// DADOS FIXOS: Injetando o Pedro Guimarães manualmente no código
-const PEDRO_GUIMARAES = {
-  id: 'pedro-guimaraes',
-  nome: 'Pedro Guimarães',
-  cargo: 'Membro • Sócio Idealizador',
-  especialidade: 'Terapeuta Emocional',
-  descricao: 'Terapeuta Emocional, formado em Terapia de Reprocessamento Generativo (TRG), mentor de terapeutas, analista corporal e comportamental, terapeuta de casais e especializado no atendimento de homens. Palestrante.',
-  instagram: 'pedroguimaraes_terapeuta',
-  whatsapp: '5521971978374',
-  foto_url: 'https://zsfxmaitngqpnzmugdwe.supabase.co/storage/v1/object/public/avatars/0.7259628753800912.jpg',
-  status: 'ativo'
-}
-
 export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
   const [therapists, setTherapists] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,7 +16,6 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
   }, [])
 
   const carregarTerapeutas = async () => {
-    // Busca e ordena pela coluna "ordem" definida no admin
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -43,22 +29,16 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
       return
     }
 
-    // A MÁGICA ACONTECE AQUI: Oculta automaticamente quem passou do prazo
-    const hoje = new Date().getTime() // Pega o momento exato de agora
+    const hoje = new Date().getTime() 
     
     const filtrados = data.filter((t: any) => {
-      // Se não tem data de expiração cadastrada, deixa ativo para não quebrar cadastros antigos
       if (!t.data_expiracao) return true 
-      
-      // Converte a data de expiração do banco para tempo exato e compara com agora
       const dataVencimento = new Date(t.data_expiracao).getTime()
-      
-      // Só retorna 'true' (ou seja, só mostra no site) se o vencimento for MAIOR ou IGUAL a hoje
       return dataVencimento >= hoje 
     })
 
-    // INSERINDO O PEDRO AQUI: Ele entra na primeira posição do array `[PEDRO_GUIMARAES, ...outros]`
-    setTherapists([PEDRO_GUIMARAES, ...filtrados])
+    // Removemos o Pedro daqui e deixamos apenas o que vem do banco (Supabase)
+    setTherapists(filtrados)
     setLoading(false)
   }
 
@@ -68,7 +48,6 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
     t.nome?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  // Lógica de Paginação
   const totalPaginas = Math.ceil(terapeutasExibidos.length / ITEMS_POR_PAGINA)
   const inicioIndex = (paginaAtual - 1) * ITEMS_POR_PAGINA
   const terapeutasPaginados = terapeutasExibidos.slice(inicioIndex, inicioIndex + ITEMS_POR_PAGINA)
@@ -77,14 +56,12 @@ export function TherapistsSection({ searchQuery }: { searchQuery: string }) {
     <section className="mx-auto max-w-7xl px-4 py-12">
       {terapeutasExibidos.length > 0 ? (
         <>
-          {/* Grid responsivo: 1 no Mobile, 2 no Tablet, 3 Laptop menor, 4 no Desktop largo */}
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {terapeutasPaginados.map((therapist) => (
               <TherapistCard key={therapist.id} therapist={therapist} />
             ))}
           </div>
 
-          {/* Botões de Paginação */}
           {totalPaginas > 1 && (
             <div className="mt-12 flex justify-center gap-2">
               <button 

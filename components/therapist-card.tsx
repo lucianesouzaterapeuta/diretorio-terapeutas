@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+// NOVO: Importando o ícone do Play para o botão da entrevista
+import { PlayCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export function TherapistCard({ therapist }: { therapist: any }) {
@@ -15,6 +17,9 @@ export function TherapistCard({ therapist }: { therapist: any }) {
   const foto = therapist?.foto_url || therapist?.foto_perfil || therapist?.foto || therapist?.image || '/placeholder.svg'
   const especialidade = therapist?.especialidade || therapist?.specialty || 'Atendimento Terapêutico'
   const descricao = therapist?.descricao || therapist?.sobre || therapist?.bio || 'Sem descrição.'
+  
+  // NOVO: Puxando a informação do link da entrevista
+  const linkEntrevista = therapist?.link_entrevista || ''
   
   // NOVA LÓGICA DO BADGE (SELO): 
   // Pega o 'cargo' (ex: "Sócio Idealizador"). Se não tiver, verifica se é fundadora e escreve "Fundadora". Se nenhum dos dois, fica null (não mostra o selo).
@@ -58,6 +63,17 @@ export function TherapistCard({ therapist }: { therapist: any }) {
         </p>
 
         <div className="mt-auto flex flex-col gap-2 pt-5">
+          
+          {/* NOVO: Botão de Entrevista - Só aparece se houver link */}
+          {linkEntrevista && (
+            <a href={linkEntrevista} target="_blank" rel="noopener noreferrer" className="w-full">
+              <Button variant="outline" className="w-full h-9 sm:h-10 text-xs sm:text-sm border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 shadow-sm">
+                <PlayCircle className="w-4 h-4 mr-2" />
+                Ver Entrevista
+              </Button>
+            </a>
+          )}
+
           <Link href={`/terapeuta/${id}`} className="w-full">
             <Button variant="outline" className="w-full h-9 sm:h-10 text-xs sm:text-sm border-emerald-200 text-emerald-700 hover:bg-emerald-50">
               Ver perfil

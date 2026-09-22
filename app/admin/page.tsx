@@ -9,8 +9,6 @@ export default function AdminPage() {
   const [terapeutas, setTerapeutas] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [meses, setMeses] = useState<Record<string, number>>({})
-  // NOVO: Estado para armazenar os links da Hotmart de cada perfil
-  const [linksHotmart, setLinksHotmart] = useState<Record<string, string>>({})
   const router = useRouter()
 
   useEffect(() => { carregarDados() }, [])
@@ -31,13 +29,6 @@ export default function AdminPage() {
       
     if (data) {
       setTerapeutas(data)
-      
-      // Mapeia os links da Hotmart que já estão salvos no banco
-      const initialLinks: Record<string, string> = {}
-      data.forEach(t => {
-        if (t.link_hotmart) initialLinks[t.id] = t.link_hotmart
-      })
-      setLinksHotmart(initialLinks)
     }
     setLoading(false)
   }
@@ -45,18 +36,6 @@ export default function AdminPage() {
   // Função para lidar com a mudança do select
   const handleMesesChange = (id: string, valor: number) => {
     setMeses(prev => ({ ...prev, [id]: valor }))
-  }
-
-  // Função para salvar o Link da Hotmart no banco de dados
-  const salvarLinkHotmart = async (id: string) => {
-    const link = linksHotmart[id] || ''
-    const { error } = await supabase.from('profiles').update({ link_hotmart: link }).eq('id', id)
-    
-    if (error) {
-      alert("Erro ao salvar link da Hotmart.")
-    } else {
-      alert("Link de pagamento salvo com sucesso!")
-    }
   }
 
   const alterarStatus = async (id: string, acao: 'ativar' | 'desativar') => {
@@ -133,7 +112,6 @@ export default function AdminPage() {
             <tr className="bg-emerald-600 text-white">
               <th className="p-3 text-left w-20">Posição</th>
               <th className="p-3 text-left min-w-[200px]">Terapeuta e Datas</th>
-              <th className="p-3 text-left">Hotmart / Pagamento</th>
               <th className="p-3 text-center">Status</th>
               <th className="p-3 text-center w-48">Ações de Acesso</th>
             </tr>
@@ -163,25 +141,6 @@ export default function AdminPage() {
                         <strong>Vencimento:</strong> {new Date(t.data_expiracao).toLocaleDateString('pt-BR')}
                       </p>
                     )}
-                  </div>
-                </td>
-                
-                {/* NOVA COLUNA: Hotmart */}
-                <td className="p-3 align-top">
-                  <div className="flex flex-col gap-2">
-                    <input 
-                      type="url"
-                      placeholder="Link Checkout Hotmart"
-                      value={linksHotmart[t.id] || ''}
-                      onChange={(e) => setLinksHotmart({...linksHotmart, [t.id]: e.target.value})}
-                      className="w-full border border-emerald-300 rounded p-1.5 text-xs bg-white focus:ring-2 focus:ring-emerald-500 outline-none"
-                    />
-                    <button 
-                      onClick={() => salvarLinkHotmart(t.id)} 
-                      className="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] px-2 py-1.5 rounded font-semibold transition w-fit"
-                    >
-                      Salvar Link
-                    </button>
                   </div>
                 </td>
 

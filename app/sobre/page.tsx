@@ -62,7 +62,10 @@ export default function SobrePage() {
                     <h2 className="font-serif text-2xl font-bold text-foreground md:text-3xl">
                       {founder.name}
                     </h2>
-                    <p className="mt-1 font-medium text-primary">Fundadora · {founder.specialty}</p>
+                    {/* RESOLUÇÃO DO ERRO: Usamos (founder as any) para o TypeScript ignorar a ausência inicial do campo role */}
+                    <p className="mt-1 font-medium text-primary">
+                      {(founder as any).role || 'Fundadora'} · {founder.specialty}
+                    </p>
                   </div>
 
                   <p className="text-pretty leading-relaxed text-muted-foreground">
