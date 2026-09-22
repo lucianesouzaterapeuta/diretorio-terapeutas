@@ -8,20 +8,32 @@ export type Therapist = {
   instagram?: string
   website?: string
   founder?: boolean
+  role?: string // Cargo exibido na página Sobre (ex: Fundadora, Sócio Idealizador)
 }
 
 export const therapists: Therapist[] = [
   {
     id: 'luciane-souza',
     name: 'Luciane Souza',
-    specialty: '',
+    specialty: 'Psicanalista e Master Terapeuta TRG',
     bio: 'Psicanalista, Master terapeuta TRG (Terapia de Reprocessamento Generativo), terapeuta EFT e especializada em Cura da Criança Interior. Mentora de terapeutas, escritora e apresentadora do Podcast Conversas que Curam.',
     image: '/therapists/luciane.jpg',
     whatsapp: '5535998185710',
     instagram: '@luciane_souzaterapeutatrg',
     website: 'https://sites.google.com/view/metodo-origem',
-
     founder: true,
+    role: 'Fundadora',
+  },
+  {
+    id: 'pedro-guimaraes',
+    name: 'Pedro Guimarães',
+    specialty: 'Terapeuta Emocional',
+    bio: 'Formado em Terapia de Reprocessamento Generativo (TRG), mentor de terapeutas, analista corporal e comportamental, terapeuta de casais e especializado no atendimento de homens. Palestrante.',
+    image: 'https://zsfxmaitngqpnzmugdwe.supabase.co/storage/v1/object/public/avatars/0.7259628753800912.jpg',
+    whatsapp: '5521971978374',
+    instagram: '@pedroguimaraes_terapeuta',
+    founder: true,
+    role: 'Sócio Idealizador',
   },
   {
     id: 'mariana-alves',
