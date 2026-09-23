@@ -238,7 +238,8 @@ export default function AdminPage() {
                     placeholder="Nº"
                     defaultValue={t.ordem || ''}
                     onBlur={(e) => atualizarOrdem(t.id, e.target.value)}
-                    className="w-16 border border-emerald-300 rounded p-1.5 text-center text-sm bg-emerald-50/50 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                    className="w-16 border border-emerald-300 rounded p-1.5 text-center text-sm bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-slate-900"
                   />
                 </td>
 
@@ -297,7 +298,8 @@ export default function AdminPage() {
                     {t.status !== 'ativo' ? (
                       <>
                         <select 
-                          className="w-full border border-emerald-300 rounded p-1.5 text-xs bg-white outline-none"
+                          /* ADICIONADO text-slate-900 ABAIXO */
+                          className="w-full border border-emerald-300 rounded p-1.5 text-xs bg-white outline-none text-slate-900"
                           value={meses[t.id] || 3}
                           onChange={(e) => handleMesesChange(t.id, parseInt(e.target.value))}
                         >
@@ -316,7 +318,8 @@ export default function AdminPage() {
                           Suspender Perfil
                         </button>
                         <select 
-                          className="w-full border border-blue-300 rounded p-1.5 text-xs bg-white outline-none"
+                          /* ADICIONADO text-slate-900 ABAIXO */
+                          className="w-full border border-blue-300 rounded p-1.5 text-xs bg-white outline-none text-slate-900"
                           value={meses[t.id] || 1}
                           onChange={(e) => handleMesesChange(t.id, parseInt(e.target.value))}
                         >
@@ -380,7 +383,8 @@ export default function AdminPage() {
                   required 
                   value={editNome} 
                   onChange={(e) => setEditNome(e.target.value)} 
-                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                  /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none text-slate-900 bg-white" 
                 />
               </div>
 
@@ -391,7 +395,8 @@ export default function AdminPage() {
                   required 
                   value={editDescricao} 
                   onChange={(e) => setEditDescricao(e.target.value)} 
-                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                  /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none text-slate-900 bg-white" 
                 />
               </div>
 
@@ -402,7 +407,8 @@ export default function AdminPage() {
                   required 
                   value={editWhatsapp} 
                   onChange={(e) => setEditWhatsapp(e.target.value)} 
-                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                  /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none text-slate-900 bg-white" 
                 />
               </div>
 
@@ -412,7 +418,8 @@ export default function AdminPage() {
                   type="text" 
                   value={editInstagram} 
                   onChange={(e) => setEditInstagram(e.target.value)} 
-                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                  /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none text-slate-900 bg-white" 
                 />
               </div>
 
@@ -422,7 +429,8 @@ export default function AdminPage() {
                   type="url" 
                   value={editWebsite} 
                   onChange={(e) => setEditWebsite(e.target.value)} 
-                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                  /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none text-slate-900 bg-white" 
                 />
               </div>
 
@@ -433,7 +441,8 @@ export default function AdminPage() {
                   value={editLinkEntrevista} 
                   onChange={(e) => setEditLinkEntrevista(e.target.value)} 
                   placeholder="Ex: https://youtu.be/..." 
-                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none" 
+                  /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+                  className="w-full p-2.5 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-emerald-600 outline-none text-slate-900 bg-white" 
                 />
               </div>
 
