@@ -56,19 +56,47 @@ export default function CadastroPage() {
         <form onSubmit={handleCadastro} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700">Nome Completo</label>
-            <input type="text" required value={nome} onChange={(e) => setNome(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+            <input 
+              type="text" 
+              required 
+              value={nome} 
+              onChange={(e) => setNome(e.target.value)} 
+              /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+              className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700">WhatsApp / Telefone</label>
-            <input type="text" required value={telefone} onChange={(e) => setTelefone(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+            <input 
+              type="text" 
+              required 
+              value={telefone} 
+              onChange={(e) => setTelefone(e.target.value)} 
+              /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+              className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700">E-mail</label>
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+            <input 
+              type="email" 
+              required 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+              className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700">Senha</label>
-            <input type="password" required value={senha} onChange={(e) => setSenha(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+            <input 
+              type="password" 
+              required 
+              value={senha} 
+              onChange={(e) => setSenha(e.target.value)} 
+              /* ADICIONADO text-slate-900 e bg-white ABAIXO */
+              className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+            />
           </div>
           <button type="submit" disabled={loading} className="w-full bg-emerald-700 text-white p-2 rounded-md hover:bg-emerald-800 disabled:bg-emerald-300 transition-colors font-medium text-lg">
             {loading ? 'Cadastrando...' : 'Criar Conta'}

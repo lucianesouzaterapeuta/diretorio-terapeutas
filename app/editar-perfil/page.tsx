@@ -222,27 +222,55 @@ export default function EditarPerfilPage() {
 
             <div>
               <label className="block text-sm font-medium text-slate-700">Nome Profissional</label>
-              <input type="text" required value={nome} onChange={(e) => setNome(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+              <input 
+                type="text" 
+                required 
+                value={nome} 
+                onChange={(e) => setNome(e.target.value)} 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700">Sobre mim (Minha bio)</label>
-              <textarea rows={4} required value={descricao} onChange={(e) => setDescricao(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+              <textarea 
+                rows={4} 
+                required 
+                value={descricao} 
+                onChange={(e) => setDescricao(e.target.value)} 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700">WhatsApp de Contato</label>
-              <input type="text" required value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+              <input 
+                type="text" 
+                required 
+                value={whatsapp} 
+                onChange={(e) => setWhatsapp(e.target.value)} 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700">Link do Instagram</label>
-              <input type="text" value={instagram} onChange={(e) => setInstagram(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+              <input 
+                type="text" 
+                value={instagram} 
+                onChange={(e) => setInstagram(e.target.value)} 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700">Link do Site</label>
-              <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" />
+              <input 
+                type="url" 
+                value={website} 
+                onChange={(e) => setWebsite(e.target.value)} 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
+              />
             </div>
             
             <div>
@@ -252,7 +280,7 @@ export default function EditarPerfilPage() {
                 value={linkEntrevista} 
                 onChange={(e) => setLinkEntrevista(e.target.value)} 
                 placeholder="Ex: https://youtu.be/..." 
-                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600" 
+                className="mt-1 block w-full p-2 border border-slate-300 rounded-md focus:ring-emerald-600 focus:border-emerald-600 text-slate-900 bg-white" 
               />
               <p className="mt-1 text-xs text-slate-500">Deixe em branco caso não tenha uma entrevista gravada.</p>
             </div>
